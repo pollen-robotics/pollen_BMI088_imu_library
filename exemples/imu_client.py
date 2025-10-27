@@ -73,7 +73,10 @@ if __name__ == "__main__":
             acc = data["acceleration"]
             gyro = data["gyroscope"]
             try:
+
                 pose[:3, 3] += np.array(acc) * dt * dt
+                # subtract gravity
+                pose[2, 3] -= 0.5 * 9.81 * dt * dt
                 delta_angle = np.array(gyro) * dt
                 delta_rot = R.from_euler("xyz", delta_angle, degrees=False)
                 rot_mat = delta_rot.as_matrix() @ pose[:3, :3]
