@@ -50,6 +50,10 @@ class IMUClient:
         try:
             self.last_imu = self.imu_queue.get(False)
         except:
+            # self.last_imu = {
+            #     "acceleration": [0, 0, 9.81],
+            #     "gyroscope": [0, 0, 0],
+            # }
             pass
 
         return self.last_imu
@@ -65,26 +69,41 @@ if __name__ == "__main__":
     fv = Viewer()
     fv.start()
     pose = np.eye(4)
-    pose[:3, 3] = [0.1, 0.1, 0.1]
-    dt = 1 / 30
+    original_pose = [0.1, 0.1, 0.1]
+    pose[:3, 3] = original_pose.copy()
+    dt = 1 / 10
+    acc_values = []
     try:
+        i = 0
         while True:
             data = client.get_imu()
             acc = data["acceleration"]
             gyro = data["gyroscope"]
-            try:
 
-                pose[:3, 3] += np.array(acc) * dt * dt
-                # subtract gravity
-                pose[2, 3] -= 0.5 * 9.81 * dt * dt
+            try:
+                # pose[:3, 3] = np.array(original_pose).copy()
+                acc_values.append(acc)
+                print(i, np.around(acc, 3))
+                pose[:3, 3] = 10*np.array(acc - np.array([0, 0, 9.81])) * dt * dt
                 delta_angle = np.array(gyro) * dt
                 delta_rot = R.from_euler("xyz", delta_angle, degrees=False)
                 rot_mat = delta_rot.as_matrix() @ pose[:3, :3]
-                pose[:3, :3] = rot_mat
+                # pose[:3, :3] = rot_mat
                 fv.push_frame(pose, "pose")
+                i += 1
             except Exception as e:
                 print("error", e)
                 pass
             time.sleep(dt)
     except KeyboardInterrupt:
         pass
+
+
+    # plot acc values
+    import matplotlib.pyplot as plt
+
+    plt.plot(acc_values)
+    plt.xlabel("Time (s)")
+    plt.ylabel("Acceleration (m/s^2)")
+    plt.title("IMU Acceleration Data")
+    plt.show()

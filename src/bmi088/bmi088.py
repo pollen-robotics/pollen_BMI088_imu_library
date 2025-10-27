@@ -96,9 +96,13 @@ class BMI088:
         z_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_LSB)
         z_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_MSB)
 
+        print(z_msb, z_lsb)
+
         x = (np.array(((x_msb << 8) | x_lsb)).astype(np.int16)).astype(float)
         y = (np.array(((y_msb << 8) | y_lsb)).astype(np.int16)).astype(float)
         z = (np.array(((z_msb << 8) | z_lsb)).astype(np.int16)).astype(float)
+
+
 
         x /= ACC_SENSITIVITY_MAP[self.acc_range]
         y /= ACC_SENSITIVITY_MAP[self.acc_range]
