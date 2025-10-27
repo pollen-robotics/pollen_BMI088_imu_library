@@ -12,7 +12,7 @@ try:
         t = time.time() - t0
         acceleration = sensor.read_acceleration()
         gyroscope = sensor.read_gyroscope()
-        data.append(t, list(acceleration), list(gyroscope))
+        data.append([t, list(acceleration), list(gyroscope)])
         time.sleep(dt)
 except KeyboardInterrupt:
     print("Stopping logging")
