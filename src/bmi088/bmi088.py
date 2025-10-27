@@ -77,8 +77,18 @@ class BMI088:
         """Start the BMI088 sensor."""
         self.bus.write_byte_data(ACC_ADDRESS, 0x7D, 0x04)
 
-    def read_acceleration(self, m_per_s=False):
-        """Read acceleration data from the BMI088 accelerometer."""
+    def read_acceleration(self, m_per_s2=False):
+        """Read acceleration data from the BMI088 accelerometer.
+
+        Outputs acceleration in g by default.
+
+        Args:
+            m_per_s2 (bool): If True, returns acceleration in meters per second squared.
+
+        Returns:
+            Tuple of acceleration values in the X, Y, and Z axes.
+
+        """
         x_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_LSB)
         x_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_MSB)
         y_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Y_LSB)
@@ -94,10 +104,25 @@ class BMI088:
         y /= ACC_SENSITIVITY_MAP[self.acc_range]
         z /= ACC_SENSITIVITY_MAP[self.acc_range]
 
+        if m_per_s2:
+            x *= 9.80665
+            y *= 9.80665
+            z *= 9.80665
+
         return x, y, z
 
-    def read_gyroscope(self, m_per_s=False):
-        """Read gyroscope data from the BMI088 gyroscope."""
+    def read_gyroscope(self, deg_per_sec=False):
+        """Read gyroscope data from the BMI088 gyroscope.
+
+        Outputs angular velocity in radians per second by default.
+
+        Args:
+            deg_per_sec (bool): If True, returns angular velocity in degrees per second.
+
+        Returns:
+            Tuple of angular velocity values in the X, Y, and Z axes.
+
+        """
         x_lsb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_X_LSB)
         x_msb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_X_MSB)
         y_lsb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_Y_LSB)
@@ -112,6 +137,11 @@ class BMI088:
         x /= GYRO_SENSITIVITY_MAP[self.gyro_range]
         y /= GYRO_SENSITIVITY_MAP[self.gyro_range]
         z /= GYRO_SENSITIVITY_MAP[self.gyro_range]
+
+        if not deg_per_sec:
+            x = np.deg2rad(x)
+            y = np.deg2rad(y)
+            z = np.deg2rad(z)
 
         return x, y, z
 

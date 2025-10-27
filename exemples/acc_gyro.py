@@ -1,5 +1,6 @@
-from bmi088 import BMI088
 import time
+
+from bmi088 import BMI088
 
 if __name__ == "__main__":
     sensor = BMI088(i2c_bus=4)
