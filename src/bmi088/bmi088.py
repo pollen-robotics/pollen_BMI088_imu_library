@@ -86,9 +86,9 @@ class BMI088:
         z_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_LSB)
         z_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_MSB)
 
-        x = np.array(((x_msb << 8) | x_lsb)).astype(np.int16)
-        y = np.array(((y_msb << 8) | y_lsb)).astype(np.int16)
-        z = np.array(((z_msb << 8) | z_lsb)).astype(np.int16)
+        x = (np.array(((x_msb << 8) | x_lsb)).astype(np.int16)).astype(float)
+        y = (np.array(((y_msb << 8) | y_lsb)).astype(np.int16)).astype(float)
+        z = (np.array(((z_msb << 8) | z_lsb)).astype(np.int16)).astype(float)
 
         x /= ACC_SENSITIVITY_MAP[self.acc_range]
         y /= ACC_SENSITIVITY_MAP[self.acc_range]
@@ -105,9 +105,9 @@ class BMI088:
         z_lsb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_Z_LSB)
         z_msb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_Z_MSB)
 
-        x = np.array(((x_msb << 8) | x_lsb)).astype(np.int16)
-        y = np.array(((y_msb << 8) | y_lsb)).astype(np.int16)
-        z = np.array(((z_msb << 8) | z_lsb)).astype(np.int16)
+        x = (np.array(((x_msb << 8) | x_lsb)).astype(np.int16)).astype(float)
+        y = (np.array(((y_msb << 8) | y_lsb)).astype(np.int16)).astype(float)
+        z = (np.array(((z_msb << 8) | z_lsb)).astype(np.int16)).astype(float)
 
         x /= GYRO_SENSITIVITY_MAP[self.gyro_range]
         y /= GYRO_SENSITIVITY_MAP[self.gyro_range]
