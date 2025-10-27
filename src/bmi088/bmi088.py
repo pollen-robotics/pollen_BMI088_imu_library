@@ -8,6 +8,10 @@ from smbus3 import SMBus
 ACC_ADDRESS = 0x18
 GYRO_ADDRESS = 0x69
 
+ACC_ENABLE_ADDRESS = 0x7D
+
+ACC_ON = 0x04
+
 ACC_X_LSB = 0x12
 ACC_X_MSB = 0x13
 ACC_Y_LSB = 0x14
@@ -26,20 +30,46 @@ GYRO_RATE_Z_MSB = 0x07
 class AccRange(Enum):
     """Accelerometer range settings."""
 
-    RANGE_3G = 3
-    RANGE_6G = 6
-    RANGE_12G = 12
-    RANGE_24G = 24
+    RANGE_3G = 0
+    RANGE_6G = 1
+    RANGE_12G = 2
+    RANGE_24G = 3
+
+
+class AccBandwidth(Enum):
+    """Accelerometer filter bandwidth settings."""
+
+    BANDWIDTH_12_5 = 0xA5
+    BANDWIDTH_25 = 0xA6
+    BANDWIDTH_50 = 0xA7
+    BANDWIDTH_100 = 0xA8
+    BANDWIDTH_200 = 0xA9
+    BANDWIDTH_400 = 0xAA
+    BANDWIDTH_800 = 0xAB
+    BANDWIDTH_1600 = 0xAC
 
 
 class GyroRange(Enum):
     """Gyroscope range settings."""
 
-    RANGE_2000_DPS = 2000
-    RANGE_1000_DPS = 1000
-    RANGE_500_DPS = 500
-    RANGE_250_DPS = 250
-    RANGE_125_DPS = 125
+    RANGE_2000_DPS = 0
+    RANGE_1000_DPS = 1
+    RANGE_500_DPS = 2
+    RANGE_250_DPS = 3
+    RANGE_125_DPS = 4
+
+
+class GyroBandwidth(Enum):
+    """Gyroscope filter bandwidth settings."""
+
+    BANDWIDTH_2000 = 0
+    # BANDWIDTH_2000 = 1
+    BANDWIDTH_1000 = 2
+    BANDWIDTH_400 = 3
+    BANDWIDTH_200 = 4
+    BANDWIDTH_100 = 5
+    # BANDWIDTH_200 = 6
+    # BANDWIDTH_100 = 7
 
 
 ACC_SENSITIVITY_MAP = {
@@ -65,17 +95,27 @@ class BMI088:
         self,
         i2c_bus,
         acc_range: AccRange = AccRange.RANGE_6G,
+        acc_bandwidth: AccBandwidth = AccBandwidth.BANDWIDTH_100,
         gyro_range: GyroRange = GyroRange.RANGE_2000_DPS,
+        gyro_bandwidth: GyroBandwidth = GyroBandwidth.BANDWIDTH_2000,
     ):
         """Initialize the BMI088 sensor interface."""
         self.bus = SMBus(i2c_bus)
         self.acc_range = acc_range
+        self.acc_bandwidth = acc_bandwidth
         self.gyro_range = gyro_range
+        self.gyro_bandwidth = gyro_bandwidth
         self._start()
 
     def _start(self):
         """Start the BMI088 sensor."""
-        self.bus.write_byte_data(ACC_ADDRESS, 0x7D, 0x04)
+        self.bus.write_byte_data(ACC_ADDRESS, 0x40, self.acc_bandwidth.value)
+        self.bus.write_byte_data(ACC_ADDRESS, 0x41, self.acc_range.value)
+
+        self.bus.write_byte_data(GYRO_ADDRESS, 0x0F, self.gyro_range.value)
+        self.bus.write_byte_data(GYRO_ADDRESS, 0x10, self.gyro_bandwidth.value)
+
+        self.bus.write_byte_data(ACC_ADDRESS, ACC_ENABLE_ADDRESS, ACC_ON)
 
     def read_acceleration(self, m_per_s2=False):
         """Read acceleration data from the BMI088 accelerometer.
@@ -101,8 +141,6 @@ class BMI088:
         x = (np.array(((x_msb << 8) | x_lsb)).astype(np.int16)).astype(float)
         y = (np.array(((y_msb << 8) | y_lsb)).astype(np.int16)).astype(float)
         z = (np.array(((z_msb << 8) | z_lsb)).astype(np.int16)).astype(float)
-
-
 
         x /= ACC_SENSITIVITY_MAP[self.acc_range]
         y /= ACC_SENSITIVITY_MAP[self.acc_range]

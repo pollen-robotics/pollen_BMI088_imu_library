@@ -2,8 +2,9 @@ import pickle
 import time
 
 from bmi088 import BMI088
+from bmi088.bmi088 import AccBandwidth, AccRange, GyroBandwidth, GyroRange
 
-sensor = BMI088(i2c_bus=4)
+sensor = BMI088(i2c_bus=4, gyro_range=GyroRange.RANGE_125_DPS)
 dt = 1 / 50
 t0 = time.time()
 data = []
