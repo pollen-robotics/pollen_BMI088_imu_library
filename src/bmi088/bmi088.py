@@ -143,7 +143,7 @@ class BMI088:
         z_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_LSB)
         z_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_MSB)
 
-        print(z_msb, z_lsb)
+        # print(z_msb, z_lsb)
 
         x = (np.array(((x_msb << 8) | x_lsb)).astype(np.int16)).astype(float)
         y = (np.array(((y_msb << 8) | y_lsb)).astype(np.int16)).astype(float)
@@ -154,6 +154,34 @@ class BMI088:
         z /= ACC_SENSITIVITY_MAP[self.acc_range]
 
         if m_per_s2:
+            x *= 9.80665
+            y *= 9.80665
+            z *= 9.80665
+
+        return x, y, z
+
+    def read_acceleration_block(self, m_per_s=False):
+        """Read acceleration data from the BMI088 accelerometer using block read.
+
+        Outputs acceleration in g by default.
+
+        Args:
+            m_per_s (bool): If True, returns acceleration in meters per second squared.
+
+        Returns:
+            Tuple of acceleration values in the X, Y, and Z axes.
+
+        """
+        block = self.bus.read_i2c_block_data(ACC_ADDRESS, ACC_X_LSB, 6)
+        x = (np.array(((block[1] << 8) | block[0])).astype(np.int16)).astype(float)
+        y = (np.array(((block[3] << 8) | block[2])).astype(np.int16)).astype(float)
+        z = (np.array(((block[5] << 8) | block[4])).astype(np.int16)).astype(float)
+
+        x /= ACC_SENSITIVITY_MAP[self.acc_range]
+        y /= ACC_SENSITIVITY_MAP[self.acc_range]
+        z /= ACC_SENSITIVITY_MAP[self.acc_range]
+
+        if m_per_s:
             x *= 9.80665
             y *= 9.80665
             z *= 9.80665
@@ -199,10 +227,10 @@ class BMI088:
 
         Returns:
             Temperature in degrees Celsius.
-    
+
         """
-        temp_msb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_MSB)
         temp_lsb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_LSB)
+        temp_msb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_MSB)
         temp_uint11 = temp_msb * 8 + temp_lsb / 32
         if temp_uint11 > 1023:
             temp -= 2048
