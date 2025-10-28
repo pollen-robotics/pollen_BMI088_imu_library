@@ -1,1 +1,1 @@
-from .bmi088 import BMI088
+from .bmi088 import BMI088 # noqa

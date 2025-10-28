@@ -1,10 +1,10 @@
-import pickle
+import pickle # noqa
 import time
 
 import numpy as np
 
 from bmi088 import BMI088
-from bmi088.bmi088 import AccBandwidth, AccRange, GyroBandwidth, GyroRange
+from bmi088.params import AccBandwidth, AccRange, GyroBandwidth, GyroRange
 
 sensor = BMI088(
     i2c_bus=4,
