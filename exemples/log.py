@@ -23,7 +23,7 @@ try:
             temp = sensor.read_temperature()
             data.append([t, list(acceleration), list(gyroscope), temp])
         time.sleep(dt)
-        if t > 4.0:
+        if t > 30.0:
             break
 except KeyboardInterrupt:
     pass

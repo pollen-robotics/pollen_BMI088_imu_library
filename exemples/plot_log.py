@@ -15,8 +15,9 @@ acc_z = [d[1][2] - data[0][1][2] for d in data]
 gyro_x = [d[2][0] - data[0][2][0] for d in data]
 gyro_y = [d[2][1] - data[0][2][1] for d in data]
 gyro_z = [d[2][2] - data[0][2][2] for d in data]
-plt.figure(figsize=(10, 8))
-plt.subplot(2, 1, 1)
+temp = [d[3] for d in data]
+plt.figure(figsize=(10, 12))
+plt.subplot(3, 1, 1)
 plt.plot(times, acc_x, label="Acc X")
 plt.plot(times, acc_y, label="Acc Y")
 plt.plot(times, acc_z, label="Acc Z")
@@ -24,7 +25,8 @@ plt.title("Acceleration")
 plt.xlabel("Time (s)")
 plt.ylabel("Acceleration (m/s²)")
 plt.legend()
-plt.subplot(2, 1, 2)
+
+plt.subplot(3, 1, 2)
 plt.plot(times, gyro_x, label="Gyro X")
 plt.plot(times, gyro_y, label="Gyro Y")
 plt.plot(times, gyro_z, label="Gyro Z")
@@ -32,5 +34,13 @@ plt.title("Gyroscope")
 plt.xlabel("Time (s)")
 plt.ylabel("Angular Velocity (rad/s)")
 plt.legend()
+
+plt.subplot(3, 1, 3)
+plt.plot(times, temp, label="Temperature", color="tab:orange")
+plt.title("Temperature")
+plt.xlabel("Time (s)")
+plt.ylabel("Temperature (°C)")
+plt.legend()
+
 plt.tight_layout()
 plt.show()
