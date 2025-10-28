@@ -120,47 +120,7 @@ class BMI088:
 
         self.bus.write_byte_data(ACC_ADDRESS, ACC_ENABLE_ADDRESS, ACC_ON)
 
-    def read_acceleration(self, m_per_s2=False):
-        """Read acceleration data from the BMI088 accelerometer.
-
-        Outputs acceleration in g by default.
-
-        Args:
-            m_per_s2 (bool): If True, returns acceleration in meters per second squared.
-
-        Returns:
-            Tuple of acceleration values in the X, Y, and Z axes.
-
-        """
-        x_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_LSB)
-        x_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_MSB)
-
-        x_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_LSB)
-        x_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_MSB)
-
-        y_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Y_LSB)
-        y_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Y_MSB)
-        z_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_LSB)
-        z_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_MSB)
-
-        # print(z_msb, z_lsb)
-
-        x = (np.array(((x_msb << 8) | x_lsb)).astype(np.int16)).astype(float)
-        y = (np.array(((y_msb << 8) | y_lsb)).astype(np.int16)).astype(float)
-        z = (np.array(((z_msb << 8) | z_lsb)).astype(np.int16)).astype(float)
-
-        x /= ACC_SENSITIVITY_MAP[self.acc_range]
-        y /= ACC_SENSITIVITY_MAP[self.acc_range]
-        z /= ACC_SENSITIVITY_MAP[self.acc_range]
-
-        if m_per_s2:
-            x *= 9.80665
-            y *= 9.80665
-            z *= 9.80665
-
-        return x, y, z
-
-    def read_acceleration_block(self, m_per_s=False):
+    def read_acceleration(self, m_per_s=False):
         """Read acceleration data from the BMI088 accelerometer using block read.
 
         Outputs acceleration in g by default.
@@ -189,7 +149,7 @@ class BMI088:
         return x, y, z
 
     def read_gyroscope(self, deg_per_sec=False):
-        """Read gyroscope data from the BMI088 gyroscope.
+        """Read gyroscope data from the BMI088 gyroscope using block read.
 
         Outputs angular velocity in radians per second by default.
 
@@ -200,16 +160,10 @@ class BMI088:
             Tuple of angular velocity values in the X, Y, and Z axes.
 
         """
-        x_lsb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_X_LSB)
-        x_msb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_X_MSB)
-        y_lsb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_Y_LSB)
-        y_msb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_Y_MSB)
-        z_lsb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_Z_LSB)
-        z_msb = self.bus.read_byte_data(GYRO_ADDRESS, GYRO_RATE_Z_MSB)
-
-        x = (np.array(((x_msb << 8) | x_lsb)).astype(np.int16)).astype(float)
-        y = (np.array(((y_msb << 8) | y_lsb)).astype(np.int16)).astype(float)
-        z = (np.array(((z_msb << 8) | z_lsb)).astype(np.int16)).astype(float)
+        block = self.bus.read_i2c_block_data(GYRO_ADDRESS, GYRO_RATE_X_LSB, 6)
+        x = (np.array(((block[1] << 8) | block[0])).astype(np.int16)).astype(float)
+        y = (np.array(((block[3] << 8) | block[2])).astype(np.int16)).astype(float)
+        z = (np.array(((block[5] << 8) | block[4])).astype(np.int16)).astype(float)
 
         x /= GYRO_SENSITIVITY_MAP[self.gyro_range]
         y /= GYRO_SENSITIVITY_MAP[self.gyro_range]
@@ -227,10 +181,10 @@ class BMI088:
 
         Returns:
             Temperature in degrees Celsius.
-    
+
         """
-        temp_msb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_MSB)
         temp_lsb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_LSB)
+        temp_msb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_MSB)
 
         _temp = (temp_msb << 3) | (temp_lsb >> 5)
         temp = _temp * 0.125 + 23
