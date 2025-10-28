@@ -227,16 +227,14 @@ class BMI088:
 
         Returns:
             Temperature in degrees Celsius.
-
+    
         """
-        temp_lsb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_LSB)
         temp_msb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_MSB)
-        temp_uint11 = temp_msb * 8 + temp_lsb / 32
-        if temp_uint11 > 1023:
-            temp -= 2048
-        else:
-            temp = temp_uint11
-        return temp * 0.125 / temp_lsb + 23
+        temp_lsb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_LSB)
+
+        _temp = (temp_msb << 3) | (temp_lsb >> 5)
+        temp = _temp * 0.125 + 23
+        return temp
 
     def close(self):
         """Close the I2C bus."""
