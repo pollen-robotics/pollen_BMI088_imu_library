@@ -129,12 +129,16 @@ class BMI088:
             Tuple of acceleration values in the X, Y, and Z axes.
 
         """
-        z_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_LSB)
-        z_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_MSB)
-        y_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Y_LSB)
-        y_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Y_MSB)
         x_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_LSB)
         x_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_MSB)
+        
+        x_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_LSB)
+        x_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_MSB)
+
+        y_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Y_LSB)
+        y_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Y_MSB)
+        z_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_LSB)
+        z_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_Z_MSB)
 
         print(z_msb, z_lsb)
 
