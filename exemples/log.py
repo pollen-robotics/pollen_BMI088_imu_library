@@ -12,7 +12,7 @@ sensor = BMI088(
     gyro_bandwidth=GyroBandwidth.BANDWIDTH_100,
 )
 dt = 1 / 50
-t0 = time.time() - 1
+t0 = time.time()
 data = []
 try:
     while True:
@@ -22,7 +22,7 @@ try:
             gyroscope = sensor.read_gyroscope()
             data.append([t, list(acceleration), list(gyroscope)])
         time.sleep(dt)
-        if t > 3.0:
+        if t > 4.0:
             break
 except KeyboardInterrupt:
     pass
