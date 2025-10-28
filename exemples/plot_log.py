@@ -5,13 +5,16 @@ import matplotlib.pyplot as plt
 
 with open("log.pkl", "rb") as f:
     data = pickle.load(f)
+
+# data = data[2:]
+
 times = [d[0] for d in data]
-acc_x = [d[1][0] for d in data]
-acc_y = [d[1][1] for d in data]
-acc_z = [d[1][2] for d in data]
-gyro_x = [d[2][0] for d in data]
-gyro_y = [d[2][1] for d in data]
-gyro_z = [d[2][2] for d in data]
+acc_x = [d[1][0] - data[0][1][0] for d in data]
+acc_y = [d[1][1] - data[0][1][1] for d in data]
+acc_z = [d[1][2] - data[0][1][2] for d in data]
+gyro_x = [d[2][0] - data[0][2][0] for d in data]
+gyro_y = [d[2][1] - data[0][2][1] for d in data]
+gyro_z = [d[2][2] - data[0][2][2] for d in data]
 plt.figure(figsize=(10, 8))
 plt.subplot(2, 1, 1)
 plt.plot(times, acc_x, label="Acc X")
