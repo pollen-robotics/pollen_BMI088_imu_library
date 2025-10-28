@@ -20,7 +20,8 @@ try:
         if t > 1:
             acceleration = sensor.read_acceleration()
             gyroscope = sensor.read_gyroscope()
-            data.append([t, list(acceleration), list(gyroscope)])
+            temp = sensor.read_temperature()
+            data.append([t, list(acceleration), list(gyroscope), temp])
         time.sleep(dt)
         if t > 4.0:
             break

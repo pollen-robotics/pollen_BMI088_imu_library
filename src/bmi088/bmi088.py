@@ -26,6 +26,9 @@ GYRO_RATE_Y_MSB = 0x05
 GYRO_RATE_Z_LSB = 0x06
 GYRO_RATE_Z_MSB = 0x07
 
+TEMP_MSB = 0x22
+TEMP_LSB = 0x23
+
 
 class AccRange(Enum):
     """Accelerometer range settings."""
@@ -131,7 +134,7 @@ class BMI088:
         """
         x_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_LSB)
         x_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_MSB)
-        
+
         x_lsb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_LSB)
         x_msb = self.bus.read_byte_data(ACC_ADDRESS, ACC_X_MSB)
 
@@ -190,6 +193,22 @@ class BMI088:
             z = np.deg2rad(z)
 
         return x, y, z
+
+    def read_temperature(self):
+        """Read temperature data from the BMI088 sensor.
+
+        Returns:
+            Temperature in degrees Celsius.
+    
+        """
+        temp_msb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_MSB)
+        temp_lsb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_LSB)
+        temp_uint11 = temp_msb * 8 + temp_lsb / 32
+        if temp_uint11 > 1023:
+            temp -= 2048
+        else:
+            temp = temp_uint11
+        return temp * 0.125 / temp_lsb + 23
 
     def close(self):
         """Close the I2C bus."""
