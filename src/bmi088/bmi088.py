@@ -136,6 +136,7 @@ class BMI088:
         x = (np.array(((block[1] << 8) | block[0])).astype(np.int16)).astype(float)
         y = (np.array(((block[3] << 8) | block[2])).astype(np.int16)).astype(float)
         z = (np.array(((block[5] << 8) | block[4])).astype(np.int16)).astype(float)
+        hex_z = hex((np.array(((block[5] << 8) | block[4])).astype(np.int16)))
 
         x /= ACC_SENSITIVITY_MAP[self.acc_range]
         y /= ACC_SENSITIVITY_MAP[self.acc_range]
@@ -146,7 +147,7 @@ class BMI088:
             y *= 9.80665
             z *= 9.80665
 
-        return x, y, z
+        return x, y, z, hex_z
 
     def read_gyroscope(self, deg_per_sec=False):
         """Read gyroscope data from the BMI088 gyroscope using block read.
