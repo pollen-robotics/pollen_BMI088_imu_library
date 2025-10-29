@@ -30,6 +30,7 @@ class IMUClient:
         self.last_imu = {
             "acceleration": [0, 0, 0],
             "gyroscope": [0, 0, 0],
+            "quaternion": [1, 0, 0, 0],
         }
 
         Thread(target=self.imu_worker, daemon=True).start()
@@ -79,6 +80,7 @@ if __name__ == "__main__":
             data = client.get_imu()
             acc = data["acceleration"]
             gyro = data["gyroscope"]
+            quat = data["quaternion"]
 
             try:
                 # pose[:3, 3] = np.array(original_pose).copy()

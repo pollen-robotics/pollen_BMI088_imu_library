@@ -33,7 +33,8 @@ class IMUServer:
                 while True:
                     acc = self.imu.read_acceleration(m_per_s2=True)
                     gyro = self.imu.read_gyroscope(deg_per_sec=False)
-                    data = {"acceleration": acc, "gyroscope": gyro}
+                    quat = self.imu.get_quat(dt=1/30)
+                    data = {"acceleration": acc, "gyroscope": gyro, "quaternion": quat}
                     data = pickle.dumps(data)
                     conn.send(data)  # send data to the client
                     time.sleep(1 / 30)

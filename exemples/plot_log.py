@@ -9,7 +9,7 @@ from scipy.fft import fft
 with open("log.pkl", "rb") as f:
     data = pickle.load(f)
 
-data = data[10:]
+data = data[100:]
 # for d in data[:20]:
 #     print(d[1][2])
 #     # print(d[1][2])
@@ -17,24 +17,23 @@ data = data[10:]
 # exit()
 
 times = [d[0] for d in data]
-# acc_x = [d[1][0] - data[0][1][0] for d in data]
-# acc_y = [d[1][1] - data[0][1][1] for d in data]
-# acc_z = [d[1][2] - data[0][1][2] for d in data]
+acc_x = [d[1][0] - data[0][1][0] for d in data]
+acc_y = [d[1][1] - data[0][1][1] for d in data]
 acc_z = [d[1][2] - data[0][1][2] for d in data]
-acc_z_fft = fft(acc_z)
-print(acc_z_fft)
-# plot fft in log scale y
-frequencies = np.fft.fftfreq(len(acc_z), d=(times[1] - times[0]))
-plt.figure(figsize=(10, 6))
-plt.plot(frequencies, np.abs(acc_z_fft))
-plt.yscale("log")
-plt.xlim(0, max(frequencies) / 2)
-plt.title("FFT of Acceleration Z")
-plt.xlabel("Frequency (Hz)")
-plt.ylabel("Magnitude (log scale)")
-plt.grid()
-plt.show()
-exit()
+# acc_z_fft = fft(acc_z)
+# print(acc_z_fft)
+# # plot fft in log scale y
+# frequencies = np.fft.fftfreq(len(acc_z), d=(times[1] - times[0]))
+# plt.figure(figsize=(10, 6))
+# plt.plot(frequencies, np.abs(acc_z_fft))
+# plt.yscale("log")
+# plt.xlim(0, max(frequencies) / 2)
+# plt.title("FFT of Acceleration Z")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude (log scale)")
+# plt.grid()
+# plt.show()
+# exit()
 
 # gyro_x = [d[2][0] - data[0][2][0] for d in data]
 # gyro_y = [d[2][1] - data[0][2][1] for d in data]
@@ -42,8 +41,8 @@ exit()
 # temp = [d[3] for d in data]
 plt.figure(figsize=(10, 12))
 plt.subplot(2, 1, 1)
-# plt.plot(times, acc_x, label="Acc X")
-# plt.plot(times, acc_y, label="Acc Y")
+plt.plot(times, acc_x, label="Acc X")
+plt.plot(times, acc_y, label="Acc Y")
 plt.plot(times, acc_z, label="Acc Z")
 plt.title("Acceleration")
 plt.xlabel("Time (s)")
@@ -66,6 +65,6 @@ plt.legend()
 # plt.ylabel("Temperature (°C)")
 # plt.legend()
 
-plt.ylim([-0.01, 0.01])
+# plt.ylim([-0.01, 0.01])
 plt.tight_layout()
 plt.show()

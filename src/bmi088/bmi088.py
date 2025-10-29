@@ -2,11 +2,15 @@
 
 import numpy as np
 from smbus3 import SMBus
+import time
+from ahrs.filters import Madgwick
 
 from bmi088.params import (
     ACC_ADDRESS,
     ACC_ENABLE_ADDRESS,
     ACC_ON,
+    ACC_POWER_CONF,
+    ACC_SOFT_RESET,
     ACC_SENSITIVITY_MAP,
     ACC_X_LSB,
     GYRO_ADDRESS,
@@ -38,16 +42,25 @@ class BMI088:
         self.acc_bandwidth = acc_bandwidth
         self.gyro_range = gyro_range
         self.gyro_bandwidth = gyro_bandwidth
+        self.q = np.array([1, 0, 0, 0])
+        self.madgwick = Madgwick()
         self._start()
 
     def _start(self):
         """Start the BMI088 sensor."""
+
+        # soft reset
+
+        # self.bus.write_byte_data(ACC_ADDRESS, ACC_SOFT_RESET, 0xB6)
+        # time.sleep(0.001)
+
         self.bus.write_byte_data(ACC_ADDRESS, 0x40, self.acc_bandwidth.value)
         self.bus.write_byte_data(ACC_ADDRESS, 0x41, self.acc_range.value)
 
         self.bus.write_byte_data(GYRO_ADDRESS, 0x0F, self.gyro_range.value)
         self.bus.write_byte_data(GYRO_ADDRESS, 0x10, self.gyro_bandwidth.value)
 
+        self.bus.write_byte_data(ACC_ADDRESS, ACC_POWER_CONF, 0x00)
         self.bus.write_byte_data(ACC_ADDRESS, ACC_ENABLE_ADDRESS, ACC_ON)
 
     def read_acceleration(self, m_per_s2=False):
@@ -106,6 +119,14 @@ class BMI088:
             z = np.deg2rad(z)
 
         return x, y, z
+
+    def get_quat(self, dt: float):
+        """Get orientation quaternion using Madgwick filter."""
+        madgwick = Madgwick()
+        acc = self.read_acceleration()[:3]
+        gyro = self.read_gyroscope()[:3]
+        self.q = madgwick.updateIMU(q=self.q, acc=acc, gyr=gyro, dt=dt)
+        return self.q
 
     def read_temperature(self):
         """Read temperature data from the BMI088 sensor.

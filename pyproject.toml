@@ -9,7 +9,7 @@ authors = [{ name = "Pollen Robotics", email = "contact@pollen-robotics.com" }]
 description = ""
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["smbus3==0.5.5", "numpy>=2.2.5,<2.3.0"]
+dependencies = ["smbus3==0.5.5", "numpy>=2.2.5,<2.3.0", "ahrs"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
