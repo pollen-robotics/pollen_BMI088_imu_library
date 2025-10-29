@@ -10,8 +10,8 @@ sensor = BMI088(
     i2c_bus=4,
     gyro_range=GyroRange.RANGE_500_DPS,
     gyro_bandwidth=GyroBandwidth.BANDWIDTH_100,
-    acc_range=AccRange.RANGE_3G,
-    acc_bandwidth=AccBandwidth.BANDWIDTH_200,
+    acc_range=AccRange.RANGE_6G,
+    acc_bandwidth=AccBandwidth.BANDWIDTH_50,
 )
 dt = 1 / 200
 t0 = time.time()
@@ -35,7 +35,7 @@ try:
 
         data.append([t, list(acceleration), list(gyroscope)])
 
-        if t > 10.0:
+        if t > 20.0:
             break
 
         i += 1
