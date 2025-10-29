@@ -1,17 +1,18 @@
 """BMI088 sensor interface module."""
 
-import numpy as np
-from smbus3 import SMBus
 import time
+
+import numpy as np
 from ahrs.filters import Madgwick
+from smbus3 import SMBus
 
 from bmi088.params import (
     ACC_ADDRESS,
     ACC_ENABLE_ADDRESS,
     ACC_ON,
     ACC_POWER_CONF,
-    ACC_SOFT_RESET,
     ACC_SENSITIVITY_MAP,
+    ACC_SOFT_RESET,
     ACC_X_LSB,
     GYRO_ADDRESS,
     GYRO_RATE_X_LSB,
@@ -122,11 +123,10 @@ class BMI088:
 
     def get_quat(self, dt: float):
         """Get orientation quaternion using Madgwick filter."""
-        madgwick = Madgwick()
         acc = self.read_acceleration()[:3]
         gyro = self.read_gyroscope()[:3]
-        self.q = madgwick.updateIMU(q=self.q, acc=acc, gyr=gyro, dt=dt)
-        return self.q
+        self.q = list(self.madgwick.updateIMU(q=self.q, acc=acc, gyr=gyro, dt=dt))
+        return self.q, acc, gyro
 
     def read_temperature(self):
         """Read temperature data from the BMI088 sensor.

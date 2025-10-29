@@ -77,20 +77,23 @@ if __name__ == "__main__":
     try:
         i = 0
         while True:
-            data = client.get_imu()
-            acc = data["acceleration"]
-            gyro = data["gyroscope"]
-            quat = data["quaternion"]
-
             try:
-                # pose[:3, 3] = np.array(original_pose).copy()
-                acc_values.append(acc)
-                print(i, np.around(acc, 3))
-                pose[:3, 3] = 10*np.array(acc - np.array([0, 0, 9.81])) * dt * dt
-                delta_angle = np.array(gyro) * dt
-                delta_rot = R.from_euler("xyz", delta_angle, degrees=False)
-                rot_mat = delta_rot.as_matrix() @ pose[:3, :3]
-                # pose[:3, :3] = rot_mat
+                data = client.get_imu()
+                acc = data["acceleration"]
+                gyro = data["gyroscope"]
+                quat = data["quaternion"]
+                
+                mat = R.from_quat(quat, scalar_first=True).as_matrix()
+                pose[:3, :3] = mat
+
+                # # pose[:3, 3] = np.array(original_pose).copy()
+                # acc_values.append(acc)
+                # print(i, np.around(acc, 3))
+                # pose[:3, 3] = 10*np.array(acc - np.array([0, 0, 9.81])) * dt * dt
+                # delta_angle = np.array(gyro) * dt
+                # delta_rot = R.from_euler("xyz", delta_angle, degrees=False)
+                # rot_mat = delta_rot.as_matrix() @ pose[:3, :3]
+                # # pose[:3, :3] = rot_mat
                 fv.push_frame(pose, "pose")
                 i += 1
             except Exception as e:
