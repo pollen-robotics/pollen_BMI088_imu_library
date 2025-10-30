@@ -1,7 +1,5 @@
 """BMI088 sensor interface module."""
 
-import time
-
 import numpy as np
 from ahrs.filters import Madgwick
 from smbus3 import SMBus
@@ -12,7 +10,6 @@ from bmi088.params import (
     ACC_ON,
     ACC_POWER_CONF,
     ACC_SENSITIVITY_MAP,
-    ACC_SOFT_RESET,
     ACC_X_LSB,
     GYRO_ADDRESS,
     GYRO_RATE_X_LSB,
@@ -32,10 +29,10 @@ class BMI088:
     def __init__(
         self,
         i2c_bus,
-        acc_range: AccRange = AccRange.RANGE_6G,
+        acc_range: AccRange = AccRange.RANGE_3G,
         acc_bandwidth: AccBandwidth = AccBandwidth.BANDWIDTH_100,
-        gyro_range: GyroRange = GyroRange.RANGE_2000_DPS,
-        gyro_bandwidth: GyroBandwidth = GyroBandwidth.BANDWIDTH_2000,
+        gyro_range: GyroRange = GyroRange.RANGE_500_DPS,
+        gyro_bandwidth: GyroBandwidth = GyroBandwidth.BANDWIDTH_100,
     ):
         """Initialize the BMI088 sensor interface."""
         self.bus = SMBus(i2c_bus)
@@ -49,12 +46,6 @@ class BMI088:
 
     def _start(self):
         """Start the BMI088 sensor."""
-
-        # soft reset
-
-        # self.bus.write_byte_data(ACC_ADDRESS, ACC_SOFT_RESET, 0xB6)
-        # time.sleep(0.001)
-
         self.bus.write_byte_data(ACC_ADDRESS, 0x40, self.acc_bandwidth.value)
         self.bus.write_byte_data(ACC_ADDRESS, 0x41, self.acc_range.value)
 
@@ -64,7 +55,7 @@ class BMI088:
         self.bus.write_byte_data(ACC_ADDRESS, ACC_POWER_CONF, 0x00)
         self.bus.write_byte_data(ACC_ADDRESS, ACC_ENABLE_ADDRESS, ACC_ON)
 
-    def read_acceleration(self, m_per_s2=False):
+    def read_accelerometer(self, m_per_s2=False):
         """Read acceleration data from the BMI088 accelerometer using block read.
 
         Outputs acceleration in g by default.
@@ -80,7 +71,6 @@ class BMI088:
         x = (np.array(((block[1] << 8) | block[0])).astype(np.int16)).astype(float)
         y = (np.array(((block[3] << 8) | block[2])).astype(np.int16)).astype(float)
         z = (np.array(((block[5] << 8) | block[4])).astype(np.int16)).astype(float)
-        hex_z = hex((np.array(((block[5] << 8) | block[4])).astype(np.int16)))
 
         x /= ACC_SENSITIVITY_MAP[self.acc_range]
         y /= ACC_SENSITIVITY_MAP[self.acc_range]
@@ -91,7 +81,7 @@ class BMI088:
             y *= 9.80665
             z *= 9.80665
 
-        return x, y, z, hex_z
+        return x, y, z
 
     def read_gyroscope(self, deg_per_s=False):
         """Read gyroscope data from the BMI088 gyroscope using block read.
@@ -122,11 +112,11 @@ class BMI088:
         return x, y, z
 
     def get_quat(self, dt: float):
-        """Get orientation quaternion using Madgwick filter."""
-        acc = self.read_acceleration()[:3]
-        gyro = self.read_gyroscope()[:3]
+        """Get orientation quaternion (scalar first) using Madgwick filter."""
+        acc = self.read_accelerometer()
+        gyro = self.read_gyroscope()
         self.q = list(self.madgwick.updateIMU(q=self.q, acc=acc, gyr=gyro, dt=dt))
-        return self.q, acc, gyro
+        return self.q
 
     def read_temperature(self):
         """Read temperature data from the BMI088 sensor.
