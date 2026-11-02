@@ -129,6 +129,9 @@ class BMI088:
         temp_msb = self.bus.read_byte_data(ACC_ADDRESS, TEMP_MSB)
 
         _temp = (temp_msb << 3) | (temp_lsb >> 5)
+        # 11-bit two's complement (datasheet): below 23 °C it is negative.
+        if _temp > 1023:
+            _temp -= 2048
         temp = _temp * 0.125 + 23
         return temp
 
