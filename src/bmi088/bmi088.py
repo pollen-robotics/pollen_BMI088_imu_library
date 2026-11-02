@@ -1,5 +1,7 @@
 """BMI088 sensor interface module."""
 
+import time
+
 import numpy as np
 from ahrs.filters import Madgwick
 from smbus3 import SMBus
@@ -53,6 +55,8 @@ class BMI088:
         self.bus.write_byte_data(GYRO_ADDRESS, 0x10, self.gyro_bandwidth.value)
 
         self.bus.write_byte_data(ACC_ADDRESS, ACC_POWER_CONF, 0x00)
+        # Leaving suspend: let the mode change settle (Bosch's API waits 5 ms).
+        time.sleep(0.005)
         self.bus.write_byte_data(ACC_ADDRESS, ACC_ENABLE_ADDRESS, ACC_ON)
 
     def read_accelerometer(self, m_per_s2=False):
