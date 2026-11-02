@@ -5,9 +5,10 @@ import time
 from bmi088 import BMI088
 
 imu = BMI088(i2c_bus=4)
+dt = 0.1
 
 while True:
-    quat = imu.get_quat()
+    quat = imu.get_quat(dt)
     print("Quaternion:", quat)
 
-    time.sleep(0.1)
+    time.sleep(dt)
