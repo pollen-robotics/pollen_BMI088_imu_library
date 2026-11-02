@@ -26,3 +26,7 @@ gyroscope = imu.read_gyroscope(deg_per_s=...)
 quat = imu.get_quat(dt)
 
 ```
+
+## License
+
+Apache 2.0, see [LICENSE](LICENSE).
