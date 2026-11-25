@@ -25,6 +25,11 @@ gyroscope = imu.read_gyroscope(deg_per_s=...)
 
 quat = imu.get_quat(dt)
 
+# Already read the sensor? Pass the readings to skip a second I2C read.
+# gyr must be in rad/s: the default unit, never deg_per_s=True.
+gyroscope = imu.read_gyroscope()
+quat = imu.get_quat(dt, acc=accelerometer, gyr=gyroscope)
+
 ```
 
 ## License

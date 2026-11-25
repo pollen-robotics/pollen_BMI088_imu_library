@@ -115,11 +115,29 @@ class BMI088:
 
         return x, y, z
 
-    def get_quat(self, dt: float):
-        """Get orientation quaternion (scalar first) using Madgwick filter."""
-        acc = self.read_accelerometer()
-        gyro = self.read_gyroscope()
-        self.q = list(self.madgwick.updateIMU(q=self.q, acc=acc, gyr=gyro, dt=dt))
+    def get_quat(
+        self,
+        dt: float,
+        acc: tuple[float, float, float] | None = None,
+        gyr: tuple[float, float, float] | None = None,
+    ) -> list[float]:
+        """Get orientation quaternion (scalar first) using Madgwick filter.
+
+        Args:
+            dt (float): Time since the previous update, in seconds.
+            acc: Accelerometer reading, any unit (the filter normalizes it).
+                Read from the sensor if None.
+            gyr: Gyroscope reading in rad/s. Read from the sensor if None.
+
+        Returns:
+            Orientation quaternion as [w, x, y, z].
+
+        """
+        if acc is None:
+            acc = self.read_accelerometer()
+        if gyr is None:
+            gyr = self.read_gyroscope()
+        self.q = list(self.madgwick.updateIMU(q=self.q, acc=acc, gyr=gyr, dt=dt))
         return self.q
 
     def read_temperature(self):
